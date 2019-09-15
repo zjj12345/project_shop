@@ -33,9 +33,14 @@
           <img :src="item.product_list[0].image_src" alt />
         </div>
         <div class="right">
-            <img :src="img.image_src" alt=""  v-if="i>0" v-for="(img,i) in item.product_list" :key="i">
+          <img :src="img.image_src" alt v-if="i>0" v-for="(img,i) in item.product_list" :key="i" />
         </div>
       </div>
+    </div>
+    <!-- 回到顶部 -->
+    <div class="Totop" v-if="isShow" @click="goTop">
+      ︿
+      <div>顶部</div>
     </div>
   </div>
 </template>
@@ -45,6 +50,7 @@ import request from "../../utils/request.js";
 export default {
   async created() {
     let that = this;
+    this.initData();
     // 调用后天借口获取看轮播图数据
     // mpvue.request({
     //     url:"https://www.zhengzhicheng.cn/api/public/v1/home/swiperdata",
@@ -66,13 +72,6 @@ export default {
     //     }
     // )
 
-    let list = await request("/home/swiperdata");
-    console.log(list);
-
-    if (list.data.meta.status === 200) {
-      this.imgUrls = list.data.message;
-    }
-
     // 获取分类菜单的数据
     // mpvue.request({
     //     url: "https://www.zhengzhicheng.cn/api/public/v1/home/catitems",
@@ -83,18 +82,8 @@ export default {
     //         }
     //     }
     // })
-    request("/home/catitems").then(res => {
-      console.log(res);
-      if (res.data.meta.status === 200) {
-        this.cateUrls = res.data.message;
-      }
-    });
+
     // 获取楼层数据
-    let floorData = await request("/home/floordata");
-    console.log(floorData);
-    if (floorData.data.meta.status === 200) {
-        this.floorData = floorData.data.message;
-    }
   },
   data() {
     return {
@@ -102,10 +91,47 @@ export default {
       cateUrls: [],
       floorData: [],
       RightArr: [],
-      imageFlag: true
+      imageFlag: true,
+      isShow: false
     };
   },
-  methods: {}
+  onPageScroll(event) {
+    this.isShow = event.scrollTop > 50;
+  },
+  onPullDownRefresh() {
+    this.initData();
+  },
+  methods: {
+    // 回到顶部
+    goTop() {
+      wx.pageScrollTo({
+        scrollTop: 0,
+        duration: 300
+      });
+    },
+    // 获取数据
+    async initData() {
+      // 轮播数据
+      let list = await request("/home/swiperdata");
+      console.log(list);
+      if (list.data.meta.status === 200) {
+        this.imgUrls = list.data.message;
+      }
+      // 菜单数据
+      request("/home/catitems").then(res => {
+        console.log(res);
+        if (res.data.meta.status === 200) {
+          this.cateUrls = res.data.message;
+        }
+      });
+      // 楼层数据
+      let floorData = await request("/home/floordata");
+      console.log(floorData);
+      if (floorData.data.meta.status === 200) {
+        this.floorData = floorData.data.message;
+      }
+    }
+  }
 };
 </script>
 
@@ -141,6 +167,7 @@ export default {
   height: 80rpx;
 }
 .floor .floor-content {
+  margin-top: 20px;
   display: flex;
 }
 .floor .floor-content .left {
@@ -158,7 +185,20 @@ export default {
 }
 .floor .floor-content .right img {
   width: 232rpx;
-  height: 190rpx;
+  height: 234rpx;
   border-radius: 4px;
+}
+.Totop {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  position: fixed;
+  right: 40rpx;
+  bottom: 40rpx;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>
