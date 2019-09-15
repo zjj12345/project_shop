@@ -28,29 +28,56 @@
 </template>
 
 <script>
+import request from '../../utils/request.js'
 export default {
-    created() {
+    async created() {
         let that = this
         // 调用后天借口获取看轮播图数据
-        mpvue.request({
-            url:"https://www.zhengzhicheng.cn/api/public/v1/home/swiperdata",
-            success: (res) => {
-                console.log(res);
-                if(res.data.meta.status===200) {
-                    this.imgUrls = res.data.message
-                }
-            }
-        }),
+        // mpvue.request({
+        //     url:"https://www.zhengzhicheng.cn/api/public/v1/home/swiperdata",
+        //     success: (res) => {
+        //         console.log(res);
+        //         if(res.data.meta.status===200) {
+        //             this.imgUrls = res.data.message
+        //         }
+        //     }
+        // }),
+
+        // 调用接口方法的调用
+        // request('/home/swiperdata').then(
+        //     (res) => {
+        //         console.log(res);
+        //         if(res.data.meta.status===200) {
+        //             this.imgUrls = res.data.message
+        //         }
+        //     }
+        // )
+
+        let list = await request('/home/swiperdata')
+        console.log(list);
+        
+        if(list.data.meta.status===200) {
+            this.imgUrls = list.data.message
+        }
+
         // 获取分类菜单的数据
-        mpvue.request({
-            url: "https://www.zhengzhicheng.cn/api/public/v1/home/catitems",
-            success: (res) => {
+        // mpvue.request({
+        //     url: "https://www.zhengzhicheng.cn/api/public/v1/home/catitems",
+        //     success: (res) => {
+        //         console.log(res)
+        //         if(res.data.meta.status===200) {
+        //             this.cateUrls = res.data.message
+        //         }
+        //     }
+        // })
+        request('/home/catitems').then(
+           (res) => {
                 console.log(res)
                 if(res.data.meta.status===200) {
                     this.cateUrls = res.data.message
                 }
-            }
-        })
+            } 
+        )
     },
     data() {
         return {
