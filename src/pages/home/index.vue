@@ -11,9 +11,11 @@
     <swiper
     :indicator-dots="imageFlag"
     :autoplay="imageFlag"
+    :circular="true"
+    :vertical="true"
     >
-        <swiper-item v-for="(item,index) in imgUrls" :key="index">
-          <image :src="item" class="slide-image" />
+        <swiper-item v-for="item in imgUrls" :key="item.goods_id">
+            <navigator :href="item.navigator_url"><image :src="item.image_src" class="slide-image" /></navigator>
         </swiper-item>
     </swiper>
   </div>
@@ -21,15 +23,27 @@
 
 <script>
 export default {
+    created() {
+        let that = this
+        // 调用后天借口获取看轮播图数据
+        wx.request({
+            url:"https://www.zhengzhicheng.cn/api/public/v1/home/swiperdata",
+            success: (res) => {
+                console.log(res);
+                if(res.data.meta.status===200) {
+                    this.imgUrls = res.data.message
+                }
+            }
+        })
+    },
     data() {
         return {
-            imgUrls:[
-                'https://images.unsplash.com/photo-1551334787-21e6bd3ab135?w=640',
-                'https://images.unsplash.com/photo-1551214012-84f95e060dee?w=640',
-                'https://images.unsplash.com/photo-1551446591-142875a901a1?w=640'
-            ],
+            imgUrls:[],
             imageFlag: true
         }
+    },
+    methods: {
+        
     },
 };
 </script>
